@@ -112,5 +112,74 @@ func main() {
 		c.JSON(http.StatusOK, book)
 	})
 
+	//POST NEW BOOKS BY PASSING AUTHOR AND TITLE
+	r.POST("/books", func(c *gin.Context) {
+		var input models.Books
+		if err := c.ShouldBindJSON(&input); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to create book"})
+			return
+		}
+
+		//Create the record in the DB
+		if err := db.Create(&input).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create book"})
+			return
+		}
+
+		// passing in title and author
+		//    {
+		//	"Title": "金閣寺",
+		//	"Author": "三島由紀夫"
+		//}
+
+		log.Printf("Book created: Title: %s, Author: %s\n", input.Title, input.Author)
+
+		c.JSON(http.StatusOK, input)
+
+	})
+
+	r.PUT("/books/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		var book models.Books
+
+		// Check if the book exists
+		result := db.First(&book, id)
+		if result.Error != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
+			return
+		}
+
+		// Bind JSON input to the existing book struct
+		if err := c.ShouldBindJSON(&book); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+			return
+		}
+
+		// Update the book in the database
+		db.Save(&book)
+
+		c.JSON(http.StatusOK, book)
+	})
+
+	r.DELETE("/books/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		var book models.Books
+
+		// Check if the book exists
+		result := db.First(&book, id)
+		if result.Error != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
+			return
+		}
+
+		// Delete the book from the database
+		if err := db.Delete(&book).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete book"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Book deleted successfully"})
+	})
+
 	r.Run() // listen and serve on .env PORT
 }
