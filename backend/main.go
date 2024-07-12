@@ -6,6 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
+
+	"net/url"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -52,6 +55,75 @@ func initDB() {
 	if err != nil {
 		log.Fatalf("Failed to migrate table: %v", err)
 	}
+}
+
+//PROCESSSING URL LOGIC
+
+func processURL(url string, operation string) string {
+	switch operation {
+	case "canonical":
+		// Implement logic for canonical URL processing
+		cleanedURL := cleanURL(url)
+		return cleanedURL
+	case "redirection":
+		// Implement logic for URL redirection
+		redirectedURL := redirectURL(url)
+		return redirectedURL
+	case "all":
+		// Implement logic for both canonical and redirection operations
+		cleanedURL := cleanURL(url)
+		redirectedURL := redirectURL(cleanedURL)
+		return redirectedURL
+	default:
+		return url // Return original URL if operation is unrecognized
+	}
+}
+
+//LOGIC FUNCTIONS FOR URL CLEANUP
+
+func cleanURL(urlString string) string {
+	// Parse the URL
+	parsedURL, err := url.Parse(urlString)
+	if err != nil {
+		// Handle parsing error, if any
+		log.Printf("Error parsing URL: %s\n", err.Error())
+		return urlString // Return original URL if parsing fails
+	}
+
+	// Remove query parameters
+	parsedURL.RawQuery = ""
+
+	// Remove trailing slashes from the path
+	path := strings.TrimSuffix(parsedURL.Path, "/")
+	parsedURL.Path = path
+
+	// Reconstruct and return the cleaned URL
+	cleanedURL := parsedURL.String()
+	return cleanedURL
+}
+
+func redirectURL(urlString string) string {
+	// Parse the URL
+	parsedURL, err := url.Parse(urlString)
+	if err != nil {
+		// Handle parsing error, if any
+		log.Printf("Error parsing URL: %s\n", err.Error())
+		return urlString // Return original URL if parsing fails
+	}
+
+	// Convert the entire URL to lowercase
+	parsedURL.Scheme = strings.ToLower(parsedURL.Scheme)
+	parsedURL.Host = "www.byfood.com"
+	parsedURL.Path = strings.ToLower(parsedURL.Path)
+	parsedURL.RawQuery = strings.ToLower(parsedURL.RawQuery)
+	parsedURL.Fragment = strings.ToLower(parsedURL.Fragment)
+
+	// Log the converted URL
+	log.Printf("Converted URL: %s\n", parsedURL.String())
+
+	// Reconstruct and return the redirected URL
+	redirectedURL := parsedURL.String()
+	return redirectedURL
 }
 
 func main() {
@@ -122,7 +194,7 @@ func main() {
 		c.JSON(http.StatusOK, book)
 	})
 
-	//POST NEW BOOKS BY PASSING AUTHOR AND TITLE
+	//POST NEW BOOKS BY PASSING AUTHOR AND TITLE AND YEAR
 	r.POST("/books", func(c *gin.Context) {
 		var input models.Books
 
@@ -133,17 +205,20 @@ func main() {
 			return
 		}
 
+		log.Printf("!!!!!BOUND")
+
 		//Create the record in the DB
 		if err := db.Create(&input).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create book"})
 			return
 		}
 
-		// passing in title and author
-		//    {
-		//	"Title": "金閣寺",
-		//	"Author": "三島由紀夫"
-		//}
+		// passing in title and author and year
+		// {
+		// 	"Title": "金閣寺",
+		// 	"Author": "三島由紀夫",
+		// 	"Year": 1955
+		// }
 
 		log.Printf("Book created: Title: %s, Author: %s\n", input.Title, input.Author)
 
@@ -192,6 +267,23 @@ func main() {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"message": "Book deleted successfully"})
+	})
+
+	//URL PROCESSING ENDPOINT
+
+	r.POST("/process-url", func(c *gin.Context) {
+		var req models.URLRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON input"})
+			return
+		}
+
+		// Process the request based on req.URL and req.Operation
+		processedURL := processURL(req.URL, req.Operation)
+
+		// Prepare the response
+		res := models.URLResponse{ProcessedURL: processedURL}
+		c.JSON(http.StatusOK, res)
 	})
 
 	r.Run() // listen and serve on .env PORT
