@@ -194,7 +194,7 @@ func main() {
 		c.JSON(http.StatusOK, book)
 	})
 
-	//POST NEW BOOKS BY PASSING AUTHOR AND TITLE
+	//POST NEW BOOKS BY PASSING AUTHOR AND TITLE AND YEAR
 	r.POST("/books", func(c *gin.Context) {
 		var input models.Books
 
@@ -205,17 +205,20 @@ func main() {
 			return
 		}
 
+		log.Printf("!!!!!BOUND")
+
 		//Create the record in the DB
 		if err := db.Create(&input).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create book"})
 			return
 		}
 
-		// passing in title and author
-		//    {
-		//	"Title": "金閣寺",
-		//	"Author": "三島由紀夫"
-		//}
+		// passing in title and author and year
+		// {
+		// 	"Title": "金閣寺",
+		// 	"Author": "三島由紀夫",
+		// 	"Year": 1955
+		// }
 
 		log.Printf("Book created: Title: %s, Author: %s\n", input.Title, input.Author)
 
