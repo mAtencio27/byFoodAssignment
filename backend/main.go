@@ -125,6 +125,9 @@ func main() {
 	//POST NEW BOOKS BY PASSING AUTHOR AND TITLE
 	r.POST("/books", func(c *gin.Context) {
 		var input models.Books
+
+		log.Printf("Attempting to put a book into the stuff")
+
 		if err := c.ShouldBindJSON(&input); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to create book"})
 			return

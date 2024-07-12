@@ -15,6 +15,7 @@ const BookDetailsPage = () => {
   const [book, setBook] = useState<Book | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+
   useEffect(() => {
     async function fetchBookDetails() {
       try {
@@ -28,6 +29,7 @@ const BookDetailsPage = () => {
 
     fetchBookDetails();
   }, [bookID]);
+
 
   return (
     <div className="container h-full mx-auto px-4 py-8">
