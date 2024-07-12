@@ -1,18 +1,24 @@
 // Modal.tsx
 import React from 'react';
 import Modal from 'react-modal';
+import { useAppContext } from './Context';
 
 interface ModalProps {
-  isOpen: boolean;
+  //isOpen: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
 }
 
-const ModalDialog: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+// will go back if context doesn't work
+// const ModalDialog: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+const ModalDialog: React.FC<ModalProps> = ({ onClose, title, children }) => {
+
+    const { state } = useAppContext();
+
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={state.modalIsOpen}
       onRequestClose={onClose}
       contentLabel={title}
       ariaHideApp={false} // Disable aria-hidden error

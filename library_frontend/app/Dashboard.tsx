@@ -13,19 +13,22 @@ interface Book {
 }
 
 export default function Dashboard() {
-  // commenting out values now stored in context
-  //const [books, setBooks] = useState<Book[]>([]);
-  const { state, setBooks } = useAppContext();
+  const {state,
+         setBooks,
+         addBook,
+         editBook,
+         deleteBook,
+         openModal,
+         closeModal,
+         setNewBook,
+         setSelectedBook,
+         } = useAppContext();
+         
   const [error, setError] = useState<string | null>(null);
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
-  
-  //Modal first implementation temporary
-  const [modalIsOpen, setModalIsOpen] = useState<boolean>(false)
-  const [modalType, setModalType] = useState<'edit' | 'delete' | 'add' | null>(null);
 
-  //INITIAL FORM for new book
+  //INITIAL FORM for new book REMINDER
 //   const [newBook, setNewBook] = useState<{ Title: string; Author: string; Year: number }>({ Title: '', Author: '', Year: 0 });
-     const [newBook, setNewBook] = useState<{ Title: string; Author: string}>({ Title: '', Author: '' });
+//     const [newBook, setNewBook] = useState<{ Title: string; Author: string}>({ Title: '', Author: '' });
 
   useEffect(() => {
     async function fetchBooks() {
@@ -46,79 +49,79 @@ export default function Dashboard() {
 
   // WILL ADD YEAR AFTER BACKEND REVISION UNCOMMENT HERE AND IN MODAL
   //const isFormValid = newBook.Title && newBook.Author && newBook.Year;
-  const isFormValid = newBook.Title && newBook.Author;
+  const isFormValid = state.newBook.Title && state.newBook.Author;
 
-  //   MODAL HANDLING
-  const openModal = (type: 'edit' | 'delete' | 'add', book?: Book) => {
-    setSelectedBook(book || null);
-    setModalType(type);
-    setModalIsOpen(true);
-  };
+  //   MODAL HANDLING MOVED TO Context
+//   const openModal = (type: 'edit' | 'delete' | 'add', book?: Book) => {
+//     setSelectedBook(book || null);
+//     setModalType(modalType);
+//     setModalIsOpen(state.modalIsOpen);
+//   };
 
-  const closeModal = () => {
-    setSelectedBook(null);
-    setModalType(null);
-    setModalIsOpen(false);
-  };
+//   const closeModal = () => {
+//     setSelectedBook(null);
+//     setModalType(modalType);
+//     setModalIsOpen(state.modalIsOpen);
+//   };
 
-  //CRUD HANDLERS
+  //CRUD HANDLERS MOVED TO CONTEXT
 
-  const handleEdit = () => {
-    //console.log(`Edit book:', ${selectedBook?.Title}`);
-    //console.log(selectedBook?.Author)
-    const editedBookJson = JSON.stringify(selectedBook)
-    console.log(editedBookJson)
-    async function editBook(){
-        try{
-            const response = await axios.put(`api/books/${selectedBook?.SSID}`,editedBookJson)
-            console.log(response.data)
+//   const handleEdit = () => {
+//     //console.log(`Edit book:', ${selectedBook?.Title}`);
+//     //console.log(selectedBook?.Author)
+//     const editedBookJson = JSON.stringify(selectedBook)
+//     console.log(editedBookJson)
+//     async function editBook(){
+//         try{
+//             const response = await axios.put(`api/books/${selectedBook?.SSID}`,editedBookJson)
+//             console.log(response.data)
 
-        } catch (error) {
-            console.error('Error fetching books:', error);
-            setError(error.message || 'Error fetching books')
-        }
-    }
-    editBook()
-    //closeModal();
-  };
+//         } catch (error) {
+//             console.error('Error fetching books:', error);
+//             setError(error.message || 'Error fetching books')
+//         }
+//     }
+//     editBook()
+//     //closeModal();
+//   };
 
-  const handleDelete = () => {
-    console.log(`Delete book:' ${selectedBook}`);
-    console.log(selectedBook?.SSID)
-    async function deleteBook() {
-        try{
-            const response = await axios.delete(`/api/books/${selectedBook?.SSID}`)
-            console.log(response.data)
-        } catch (error) {
-            console.error('Error fetching books:', error);
-            setError(error.message || 'Error fetching books')
-        }
-    }
-    deleteBook()
-    closeModal();
-  };
+//   const handleDelete = () => {
+//     console.log(`Delete book:' ${selectedBook}`);
+//     console.log(selectedBook?.SSID)
+//     async function deleteBook() {
+//         try{
+//             const response = await axios.delete(`/api/books/${selectedBook?.SSID}`)
+//             console.log(response.data)
+//         } catch (error) {
+//             console.error('Error fetching books:', error);
+//             setError(error.message || 'Error fetching books')
+//         }
+//     }
+//     deleteBook()
+//     closeModal();
+//   };
 
-  const handleAddbook = () => {
-    //DATA CHECK DELETE ONCE working
-    //console.log(newBook);
-    const newBookJson = JSON.stringify(newBook)
-    console.log(newBookJson)
-    async function addBook() {
-        try {
-          const response = await axios.post('/api/books/',newBookJson,{
-            headers: {
-                'Content-Type': 'application/json'
-            }
-          });
-          console.log(response.data)
-        } catch (error) {
-          console.error('Error fetching books:', error);
-          setError(error.message || 'Error fetching books')
-        }
-    }
-    addBook()
-    closeModal();
-  }
+//   const handleAddbook = () => {
+//     //DATA CHECK DELETE ONCE working
+//     //console.log(newBook);
+//     const newBookJson = JSON.stringify(newBook)
+//     console.log(newBookJson)
+//     async function addBook() {
+//         try {
+//           const response = await axios.post('/api/books/',newBookJson,{
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             }
+//           });
+//           console.log(response.data)
+//         } catch (error) {
+//           console.error('Error fetching books:', error);
+//           setError(error.message || 'Error fetching books')
+//         }
+//     }
+//     addBook()
+//     closeModal();
+//   }
 
 
 
@@ -171,9 +174,9 @@ export default function Dashboard() {
 
 
 {/* Modal for edit, delete, and add */}
-      <ModalDialog isOpen={modalIsOpen} onClose={closeModal} title={modalType === 'add' ? "Add Book" : modalType === 'edit' ? "Edit Book" : "Delete Book"}>
+      <ModalDialog onClose={closeModal} title={state.modalType === 'add' ? "Add Book" : state.modalType === 'edit' ? "Edit Book" : "Delete Book"}>
         <div>
-          {modalType === 'edit' && (
+          {state.modalType === 'edit' && (
             
             <div>
               <h2>Edit Book Form</h2>
@@ -182,10 +185,10 @@ export default function Dashboard() {
                     Title:
                     <input
                         type="text"
-                        placeholder={selectedBook?.Title}
-                        value={selectedBook?.Title}
+                        placeholder={state.selectedBook?.Title}
+                        value={state.selectedBook?.Title}
                         maxLength={255}
-                        onChange={(e) => setSelectedBook(selectedBook ? { ...selectedBook, Title: e.target.value } : null)}
+                        onChange={(e) => setSelectedBook('Title', e.target.value)}
                         className="border rounded px-2 py-1 mb-2 w-full"
                     />
                 </label>
@@ -193,10 +196,10 @@ export default function Dashboard() {
                     Author:
                     <input
                     type="text"
-                    placeholder={selectedBook?.Author}
-                    value={selectedBook?.Author}
+                    placeholder={state.selectedBook?.Author}
+                    value={state.selectedBook?.Author}
                     maxLength={255}
-                    onChange={(e) => setSelectedBook(selectedBook ? { ...selectedBook, Author: e.target.value } : null)}
+                    onChange={(e) => setSelectedBook('Author', e.target.value)}
                     className="border rounded px-2 py-1 mb-2 w-full"
                 />
                 </label>
@@ -212,15 +215,15 @@ export default function Dashboard() {
                 </label> */}
 
               </form>
-              <button onClick={handleEdit} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+              <button onClick={editBook} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
                 Save Changes
               </button>
             </div>
           )}
-          {modalType === 'delete' && (
+          {state.modalType === 'delete' && (
             <div>
-              <p>Are you sure you want to delete the book "{selectedBook?.Title}"?</p>
-              <button onClick={handleDelete} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+              <p>Are you sure you want to delete the book "{state.selectedBook?.Title}"?</p>
+              <button onClick={deleteBook} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
                 Delete Book
               </button>
               <button onClick={closeModal} className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
@@ -228,7 +231,7 @@ export default function Dashboard() {
               </button>
             </div>
           )}
-          {modalType === 'add' && (
+          {state.modalType === 'add' && (
             <div>
               <h2>Add Book Form</h2>
               <form>
@@ -236,9 +239,9 @@ export default function Dashboard() {
                 Title:
                 <input
                   type="text"
-                  value={newBook.Title}
+                  value={state.newBook.Title}
                   maxLength={255}
-                  onChange={(e) => setNewBook({ ...newBook, Title: e.target.value })}
+                  onChange={(e) => setNewBook('Title', e.target.value)}
                   className="border rounded px-2 py-1 mb-2 w-full"
                 />
               </label>
@@ -246,9 +249,9 @@ export default function Dashboard() {
                 Author:
                 <input
                   type="text"
-                  value={newBook.Author}
+                  value={state.newBook.Author}
                   maxLength={255}
-                  onChange={(e) => setNewBook({ ...newBook, Author: e.target.value })}
+                  onChange={(e) => setNewBook('Author', e.target.value )}
                   className="border rounded px-2 py-1 mb-2 w-full"
                 />
               </label>
@@ -256,7 +259,7 @@ export default function Dashboard() {
                 Year:
                 <input
                   type="number"
-                  value={newBook.Year}
+                  value={state.newBook.Year}
                   onChange={(e) => setNewBook({ ...newBook, Year: parseInt(e.target.value) })}
                   className="border rounded px-2 py-1 mb-2 w-full"
                 />
@@ -265,7 +268,7 @@ export default function Dashboard() {
               <p>Your add book form components go here</p>
               {/* Placeholder button for adding book */}
               <button
-              onClick={()=>{handleAddbook()}}
+              onClick={addBook}
               disabled={!isFormValid} 
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
                 Add Book
