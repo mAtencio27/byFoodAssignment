@@ -49,79 +49,8 @@ export default function Dashboard() {
 
   // WILL ADD YEAR AFTER BACKEND REVISION UNCOMMENT HERE AND IN MODAL
   //const isFormValid = newBook.Title && newBook.Author && newBook.Year;
-  const isFormValid = state.newBook.Title && state.newBook.Author;
+  //const isFormValid = state.newBook.Title && state.newBook.Author;
 
-  //   MODAL HANDLING MOVED TO Context
-//   const openModal = (type: 'edit' | 'delete' | 'add', book?: Book) => {
-//     setSelectedBook(book || null);
-//     setModalType(modalType);
-//     setModalIsOpen(state.modalIsOpen);
-//   };
-
-//   const closeModal = () => {
-//     setSelectedBook(null);
-//     setModalType(modalType);
-//     setModalIsOpen(state.modalIsOpen);
-//   };
-
-  //CRUD HANDLERS MOVED TO CONTEXT
-
-//   const handleEdit = () => {
-//     //console.log(`Edit book:', ${selectedBook?.Title}`);
-//     //console.log(selectedBook?.Author)
-//     const editedBookJson = JSON.stringify(selectedBook)
-//     console.log(editedBookJson)
-//     async function editBook(){
-//         try{
-//             const response = await axios.put(`api/books/${selectedBook?.SSID}`,editedBookJson)
-//             console.log(response.data)
-
-//         } catch (error) {
-//             console.error('Error fetching books:', error);
-//             setError(error.message || 'Error fetching books')
-//         }
-//     }
-//     editBook()
-//     //closeModal();
-//   };
-
-//   const handleDelete = () => {
-//     console.log(`Delete book:' ${selectedBook}`);
-//     console.log(selectedBook?.SSID)
-//     async function deleteBook() {
-//         try{
-//             const response = await axios.delete(`/api/books/${selectedBook?.SSID}`)
-//             console.log(response.data)
-//         } catch (error) {
-//             console.error('Error fetching books:', error);
-//             setError(error.message || 'Error fetching books')
-//         }
-//     }
-//     deleteBook()
-//     closeModal();
-//   };
-
-//   const handleAddbook = () => {
-//     //DATA CHECK DELETE ONCE working
-//     //console.log(newBook);
-//     const newBookJson = JSON.stringify(newBook)
-//     console.log(newBookJson)
-//     async function addBook() {
-//         try {
-//           const response = await axios.post('/api/books/',newBookJson,{
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             }
-//           });
-//           console.log(response.data)
-//         } catch (error) {
-//           console.error('Error fetching books:', error);
-//           setError(error.message || 'Error fetching books')
-//         }
-//     }
-//     addBook()
-//     closeModal();
-//   }
 
 
 
@@ -133,8 +62,7 @@ export default function Dashboard() {
         className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mb-4"
         onClick={() => openModal('add')}>
         Add Book
-      </button> d
-      <button onClick={()=>{console.log(state)}}>click</button>
+      </button> 
       
       {/* Grid layout for displaying books */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -164,7 +92,7 @@ export default function Dashboard() {
                             
                     {/* Link to view details */}
                 <Link href={`/${book.SSID}`} passHref>
-                    <button className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">View Details</button>
+                    <button className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded w-full">View Details</button>
                 </Link>
               
             </div>
@@ -174,7 +102,7 @@ export default function Dashboard() {
 
 
 {/* Modal for edit, delete, and add */}
-      <ModalDialog onClose={closeModal} title={state.modalType === 'add' ? "Add Book" : state.modalType === 'edit' ? "Edit Book" : "Delete Book"}>
+      <ModalDialog>
         <div>
           {state.modalType === 'edit' && (
             
@@ -269,7 +197,7 @@ export default function Dashboard() {
               {/* Placeholder button for adding book */}
               <button
               onClick={addBook}
-              disabled={!isFormValid} 
+              
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
                 Add Book
               </button>

@@ -15,6 +15,7 @@ interface AppState {
   modalType: 'edit' | 'delete' | 'add' | null;
   modalIsOpen: boolean;
   error: string | null;
+  validationErrors: { [key in keyof AppState['newBook']]?: string };
 }
 
 const initialState: AppState = {
@@ -24,6 +25,7 @@ const initialState: AppState = {
   modalType: null,
   modalIsOpen: false,
   error: null,
+  validationErrors: {},
 };
 
 const AppContext = createContext<{
@@ -37,6 +39,8 @@ const AppContext = createContext<{
   closeModal: () => void;
   setNewBook: (field: keyof AppState['newBook'], value: string) => void;
   setSelectedBook: (field: keyof Book, value: string | number) => void;
+  validateNewBook: () => boolean;
+  validateSelectedBook: () => boolean;
 }>({
   state: initialState,
   setState: () => {},
@@ -48,6 +52,8 @@ const AppContext = createContext<{
   closeModal: () => {},
   setNewBook: () => {},
   setSelectedBook: () => {},
+  validateNewBook: () => true,
+  validateSelectedBook: () => true
 });
 
 interface AppProviderProps {
@@ -65,6 +71,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   const addBook = async () => {
+
+    if (!validateNewBook()) {
+      console.log("Validation failed fill in all fields");
+      return;
+    }
     const newBookJson = JSON.stringify(state.newBook);
     try {
       const response = await axios.post('/api/books/', newBookJson, {
@@ -83,6 +94,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   const editBook = async () => {
+
+    console.log("New book state before validation", state.newBook)
+
+    if (!validateSelectedBook()) {
+      console.log("Validation failed fill in all fields");
+      return;
+    }
+
     const editedBookJson = JSON.stringify(state.selectedBook);
     try {
       const response = await axios.put(`/api/books/${state.selectedBook?.SSID}`, editedBookJson, {
@@ -158,6 +177,51 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   };
 
+  const validateNewBook = (): boolean => {
+    const errors: Partial<AppState['validationErrors']> = {};
+    let isValid = true;
+
+    if (!state.newBook.Title.trim()) {
+      errors.Title = 'Title is required';
+      isValid = false;
+    }
+
+    if (!state.newBook.Author.trim()) {
+      errors.Author = 'Author is required';
+      isValid = false;
+    }
+
+    setState((prevState) => ({
+      ...prevState,
+      validationErrors: errors,
+    }));
+
+    return isValid;
+  };
+
+  const validateSelectedBook = (): boolean => {
+    const errors: Partial<AppState['validationErrors']> = {};
+    let isValid = true;
+
+    if (!state.selectedBook?.Title.trim()) {
+      errors.Title = 'Title is required';
+      isValid = false;
+    }
+
+    if (!state.selectedBook?.Author.trim()) {
+      errors.Author = 'Author is required';
+      isValid = false;
+    }
+
+    setState((prevState) => ({
+      ...prevState,
+      validationErrors: errors,
+    }));
+
+    return isValid;
+  };
+
+
   return (
     <AppContext.Provider
       value={{
@@ -171,6 +235,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         closeModal,
         setNewBook,
         setSelectedBook,
+        validateNewBook,
+        validateSelectedBook,
       }}
     >
       {children}
