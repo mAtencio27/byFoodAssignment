@@ -34,7 +34,7 @@ This project is a full CRUD application for managing a library of books.
 
 ## Setup Instructions
 
-```bash
+
 # Clone the repository
 git clone https://github.com/your/repository.git
 cd repository
