@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"gocrudapi/models"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 
+	"net/http"
 	"net/url"
 
 	"github.com/gin-contrib/cors"
@@ -15,9 +15,6 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 
 	_ "gocrudapi/docs" // This line is necessary for go-swagger to find your docs
 )
@@ -172,6 +169,12 @@ func main() {
 		}
 		c.JSON(200, gin.H{"message": result})
 	})
+
+	//redoc
+	r.StaticFile("/swagger/openapi.json", "./docs/openapi.json")
+
+	// Serve the Redoc HTML file
+	r.StaticFile("/docs", "./docs/redoc.html")
 
 	// @Summary Get all books
 	// @Description Get details of all books
@@ -361,6 +364,5 @@ func main() {
 		c.JSON(http.StatusOK, res)
 	})
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.Run() // listen and serve on .env PORT
 }
