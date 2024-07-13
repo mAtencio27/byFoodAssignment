@@ -5,13 +5,13 @@ interface Book {
   SSID: number;
   Title: string;
   Author: string;
-  Year: number;
+  Year: string;
 }
 
 interface AppState {
   books: Book[];
   selectedBook: Book | null;
-  newBook: { Title: string; Author: string };
+  newBook: { Title: string; Author: string; Year: string; };
   modalType: 'edit' | 'delete' | 'add' | null;
   modalIsOpen: boolean;
   error: string | null;
@@ -21,7 +21,7 @@ interface AppState {
 const initialState: AppState = {
   books: [],
   selectedBook: null,
-  newBook: { Title: '', Author: '' },
+  newBook: { Title: '', Author: '', Year: '' },
   modalType: null,
   modalIsOpen: false,
   error: null,
@@ -95,7 +95,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const editBook = async () => {
 
-    console.log("New book state before validation", state.newBook)
+    console.log(state.selectedBook)
 
     if (!validateSelectedBook()) {
       console.log("Validation failed fill in all fields");
@@ -191,6 +191,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       isValid = false;
     }
 
+    if (!state.newBook.Year.trim()) {
+      errors.Year = 'Year is required';
+      isValid = false;
+    }
+
     setState((prevState) => ({
       ...prevState,
       validationErrors: errors,
@@ -210,6 +215,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     if (!state.selectedBook?.Author.trim()) {
       errors.Author = 'Author is required';
+      isValid = false;
+    }
+
+    if (!state.selectedBook?.Year.trim()) {
+      errors.Year = 'Year is required';
       isValid = false;
     }
 

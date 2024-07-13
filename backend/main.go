@@ -230,6 +230,8 @@ func main() {
 		id := c.Param("id")
 		var book models.Books
 
+		log.Printf(book.Author, book.Title, book.Year)
+
 		// Check if the book exists
 		result := db.First(&book, id)
 		if result.Error != nil {
