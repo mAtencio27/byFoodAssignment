@@ -72,7 +72,7 @@ export default function Dashboard() {
             <div className="mb-4">
               <h2 className="text-xl font-semibold">{book.Title}</h2>
               <p className="text-gray-600">{book.Author}</p>
-              <p className="text-gray-600">Year: {book.year}</p>
+              <p className="text-gray-600">Year: {book.Year}</p>
             </div>
             
             {/* Buttons section */}
@@ -131,16 +131,16 @@ export default function Dashboard() {
                     className="border rounded px-2 py-1 mb-2 w-full"
                 />
                 </label>
-                {/* <label>
+                <label>
                     Year:
                     <input
                     type="number"
-                    placeholder={selectedBook?.Year}
-                    value={newBook.Year}
-                    onChange={(e) => setNewBook({ ...newBook, Year: parseInt(e.target.value) })}
+                    //placeholder={state.selectedBook?.Year}
+                    value={state.selectedBook.Year}
+                    onChange={(e) => setSelectedBook('Year', e.target.value)}
                     className="border rounded px-2 py-1 mb-2 w-full"
                     />
-                </label> */}
+                </label>
 
               </form>
               <button onClick={editBook} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
@@ -183,15 +183,15 @@ export default function Dashboard() {
                   className="border rounded px-2 py-1 mb-2 w-full"
                 />
               </label>
-              {/* <label>
+              <label>
                 Year:
                 <input
                   type="number"
                   value={state.newBook.Year}
-                  onChange={(e) => setNewBook({ ...newBook, Year: parseInt(e.target.value) })}
+                  onChange={(e) => setNewBook('Year', e.target.value)}
                   className="border rounded px-2 py-1 mb-2 w-full"
                 />
-              </label> */}
+              </label>
               </form>
               <p>Your add book form components go here</p>
               {/* Placeholder button for adding book */}
