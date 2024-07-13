@@ -140,6 +140,26 @@ func redirectURL(urlString string) string {
 	return redirectedURL
 }
 
+// @Summary Get all books
+// @Description Get details of all books
+// @Tags books
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Books
+// @Failure 500 {object} gin.H{"error": "Failed to fetch books"}
+// @Router /books [get]
+func GetBooksHandler(c *gin.Context) {
+	var books []models.Books
+	if err := db.Find(&books).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to fetch books"})
+		return
+	}
+
+	fmt.Printf("Books: %+v\n", books) // Using fmt.Printf
+
+	c.JSON(200, books)
+}
+
 func main() {
 	r := gin.Default()
 
@@ -185,19 +205,7 @@ func main() {
 	// @Failure 500 {object} gin.H{"error": "Failed to fetch books"}
 	// @Router /books [get]
 
-	r.GET("/books", func(c *gin.Context) {
-		var books []models.Books
-		if err := db.Find(&books).Error; err != nil {
-			c.JSON(500, gin.H{"error": "Failed to fetch books"})
-			return
-		}
-
-		// 👾👾👾👾 Log the contents of the books variable
-		fmt.Printf("Books: %+v\n", books) // Using fmt.Printf
-		// 👾👾👾👾log.Printf("Books: %+v\n", books) // Using log.Printf
-
-		c.JSON(200, books)
-	})
+	r.GET("/books", GetBooksHandler)
 
 	// @Summary Get book by ID
 	// @Description Get details of a book by ID
