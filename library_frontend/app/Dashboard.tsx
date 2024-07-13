@@ -3,6 +3,7 @@ import axios from 'axios'
 import Link from 'next/link';
 import { useAppContext} from './Context';
 import ModalDialog from './modal';
+import Header from './header';
 
 
 interface Book {
@@ -34,14 +35,11 @@ export default function Dashboard() {
     async function fetchBooks() {
       try {
         const response = await axios.get('/api/books/');
-        //console.log(response.data)
-        //console.log(response.data[0].SSID)
-        //Context API rework
         setBooks(response.data)
-        //console.log(state.books)
+        setError(null)
       } catch (error) {
         console.error('Error fetching books:', error);
-        setError(error.message || 'Error fetching books')
+        setError('Error fetching books. Please try again later.')
       }
     }
     fetchBooks();
@@ -55,15 +53,10 @@ export default function Dashboard() {
 
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl text-center font-bold mb-4">Dashboard</h1>
+    <div className="container mx-auto px-4 py-8 bg-gray-100 pt-20">
+      <Header />
+      <h1 className="text-3xl text-center font-bold mb-4 text-[#ff4d55]">Dashboard</h1>
 
-      <button
-        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mb-4"
-        onClick={() => openModal('add')}>
-        Add Book
-      </button> 
-      
       {/* Grid layout for displaying books */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {state.books.map((book) => (
@@ -107,7 +100,6 @@ export default function Dashboard() {
           {state.modalType === 'edit' && (
             
             <div>
-              <h2>Edit Book Form</h2>
               <form>
                 <label>
                     Title:
@@ -119,7 +111,10 @@ export default function Dashboard() {
                         onChange={(e) => setSelectedBook('Title', e.target.value)}
                         className="border rounded px-2 py-1 mb-2 w-full"
                     />
+                    
                 </label>
+                {/* Add validation error message */}
+                {!state.selectedBook?.Title && <p className="text-red-500 text-sm mt-1">Title is required.</p>}
                 <label>
                     Author:
                     <input
@@ -130,38 +125,57 @@ export default function Dashboard() {
                     onChange={(e) => setSelectedBook('Author', e.target.value)}
                     className="border rounded px-2 py-1 mb-2 w-full"
                 />
+                {/* Add validation error message */}
+                {!state.selectedBook?.Author && <p className="text-red-500 text-sm mt-1">Author is required.</p>}
                 </label>
                 <label>
                     Year:
                     <input
                     type="number"
-                    //placeholder={state.selectedBook?.Year}
-                    value={state.selectedBook.Year}
+                    value={state.selectedBook?.Year}
                     onChange={(e) => setSelectedBook('Year', e.target.value)}
                     className="border rounded px-2 py-1 mb-2 w-full"
                     />
+                {/* Add validation error message */}
+                {!state.selectedBook?.Year && <p className="text-red-500 text-sm mt-1">Year is required.</p>}
                 </label>
 
               </form>
-              <button onClick={editBook} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                Save Changes
-              </button>
+              <div className="flex mt-4 gap-2">
+                <button
+                    onClick={closeModal}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                    Back
+                </button>
+                <button onClick={editBook} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                  Save Changes
+                </button>
+              </div>
+              {!state.selectedBook?.Title || !state.selectedBook?.Author || !state.selectedBook?.Year ? (
+                <p className="text-red-500 text-sm mt-1">Please fill in all fields before saving changes.</p>
+              ) : null}
             </div>
           )}
           {state.modalType === 'delete' && (
             <div>
               <p>Are you sure you want to delete the book "{state.selectedBook?.Title}"?</p>
-              <button onClick={deleteBook} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
-                Delete Book
-              </button>
-              <button onClick={closeModal} className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
-                Cancel
-              </button>
+              <div className="flex mt-4 gap-2">
+                  <button
+                      onClick={deleteBook}
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                      Delete Book
+                  </button>
+                  <button
+                      onClick={closeModal}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                      Cancel
+                  </button>
+              </div>
+
             </div>
           )}
           {state.modalType === 'add' && (
             <div>
-              <h2>Add Book Form</h2>
               <form>
               <label>
                 Title:
@@ -173,6 +187,7 @@ export default function Dashboard() {
                   className="border rounded px-2 py-1 mb-2 w-full"
                 />
               </label>
+              {!state.newBook.Title && <p className="text-red-500 text-sm mt-1">Title is required.</p>}
               <label>
                 Author:
                 <input
@@ -182,6 +197,7 @@ export default function Dashboard() {
                   onChange={(e) => setNewBook('Author', e.target.value )}
                   className="border rounded px-2 py-1 mb-2 w-full"
                 />
+                {!state.newBook.Author && <p className="text-red-500 text-sm mt-1">Author is required.</p>}
               </label>
               <label>
                 Year:
@@ -191,16 +207,24 @@ export default function Dashboard() {
                   onChange={(e) => setNewBook('Year', e.target.value)}
                   className="border rounded px-2 py-1 mb-2 w-full"
                 />
+                {!state.newBook.Year && <p className="text-red-500 text-sm mt-1">Year is required.</p>}
               </label>
               </form>
-              <p>Your add book form components go here</p>
-              {/* Placeholder button for adding book */}
-              <button
-              onClick={addBook}
-              
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
-                Add Book
-              </button>
+              <div className="flex mt-4 gap-2">
+                  <button
+                      onClick={closeModal}
+                        className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                      Back
+                  </button>
+                  <button
+                      onClick={addBook}
+                      className="bg-[#ff4d55] hover:bg-[#e7434b] text-white px-4 py-2 rounded">
+                        Add Book
+                  </button>
+              </div>
+              {!state.newBook.Title || !state.newBook.Author || !state.newBook.Year ? (
+                <p className="text-red-500 text-sm mt-1">Please fill in all fields before adding a book.</p>
+              ) : null}
             </div>
           )}
         </div>

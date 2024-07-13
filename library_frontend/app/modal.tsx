@@ -25,7 +25,6 @@ const ModalDialog: React.FC<ModalProps> = ({ children }) => {
     >
       <div className="modal-header">
         <h2>{title}</h2>
-        <button onClick={closeModal}>Close</button>
       </div>
       <div className="modal-body">{children}</div>
     </Modal>
