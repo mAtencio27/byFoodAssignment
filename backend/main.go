@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"gocrudapi/models"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 
+	"net/http"
 	"net/url"
 
 	"github.com/gin-contrib/cors"
@@ -15,7 +15,21 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	_ "gocrudapi/docs" // This line is necessary for go-swagger to find your docs
 )
+
+// @title Books API
+// @version 1.0
+// @description This is a sample server for managing books.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @host localhost:8080
+// @BasePath /
 
 // creating the db variable with a type of gorm.DB with a pointer //
 var db *gorm.DB
@@ -139,7 +153,7 @@ func main() {
 	}))
 
 	//INITAL SETUP
-	r.GET("/", func(c *gin.Context) {
+	r.GET("/open", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "The library is open",
 		})
@@ -156,7 +170,21 @@ func main() {
 		c.JSON(200, gin.H{"message": result})
 	})
 
-	//GET ALL BOOKS
+	//redoc
+	r.StaticFile("/swagger/openapi.json", "./docs/openapi.json")
+
+	// Serve the Redoc HTML file
+	r.StaticFile("/docs", "./docs/redoc.html")
+
+	// @Summary Get all books
+	// @Description Get details of all books
+	// @Tags books
+	// @Accept json
+	// @Produce json
+	// @Success 200 {array} models.Books
+	// @Failure 500 {object} gin.H{"error": "Failed to fetch books"}
+	// @Router /books [get]
+
 	r.GET("/books", func(c *gin.Context) {
 		var books []models.Books
 		if err := db.Find(&books).Error; err != nil {
@@ -171,7 +199,16 @@ func main() {
 		c.JSON(200, books)
 	})
 
-	//GET BOOKS BY ID
+	// @Summary Get book by ID
+	// @Description Get details of a book by ID
+	// @Tags books
+	// @Accept json
+	// @Produce json
+	// @Param id path int true "Book ID"
+	// @Success 200 {object} models.Books
+	// @Failure 404 {object} gin.H{"error": "Book not found"}
+	// @Router /books/{id} [get]
+
 	r.GET("/books/:id", func(c *gin.Context) {
 		// Extract book ID from URL paramerter
 		id := c.Param("id")
@@ -194,7 +231,16 @@ func main() {
 		c.JSON(http.StatusOK, book)
 	})
 
-	//POST NEW BOOKS BY PASSING AUTHOR AND TITLE AND YEAR
+	// @Summary Create a new book
+	// @Description Add a new book to the collection
+	// @Tags books
+	// @Accept json
+	// @Produce json
+	// @Param book body models.Books true "Book to create"
+	// @Success 200 {object} models.Books
+	// @Failure 400 {object} gin.H{"error": "Failed to create book"}
+	// @Router /books [post]
+
 	r.POST("/books", func(c *gin.Context) {
 		var input models.Books
 
@@ -226,6 +272,18 @@ func main() {
 
 	})
 
+	// @Summary Update a book
+	// @Description Update details of an existing book by ID
+	// @Tags books
+	// @Accept json
+	// @Produce json
+	// @Param id path int true "Book ID"
+	// @Param book body models.Books true "Book details to update"
+	// @Success 200 {object} models.Books
+	// @Failure 400 {object} gin.H{"error": "Invalid input"}
+	// @Failure 404 {object} gin.H{"error": "Book not found"}
+	// @Router /books/{id} [put]
+
 	r.PUT("/books/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		var book models.Books
@@ -251,6 +309,16 @@ func main() {
 		c.JSON(http.StatusOK, book)
 	})
 
+	// @Summary Delete a book
+	// @Description Delete a book by ID
+	// @Tags books
+	// @Accept json
+	// @Produce json
+	// @Param id path int true "Book ID"
+	// @Success 200 {object} gin.H{"message": "Book deleted successfully"}
+	// @Failure 404 {object} gin.H{"error": "Book not found"}
+	// @Router /books/{id} [delete]
+
 	r.DELETE("/books/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		var book models.Books
@@ -271,7 +339,15 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"message": "Book deleted successfully"})
 	})
 
-	//URL PROCESSING ENDPOINT
+	// @Summary Process URL
+	// @Description Process URL based on specified operation
+	// @Tags url
+	// @Accept json
+	// @Produce json
+	// @Param request body URLRequest true "URL request"
+	// @Success 200 {object} URLResponse
+	// @Failure 400 {object} gin.H{"error": "Invalid JSON input"}
+	// @Router /process-url [post]
 
 	r.POST("/process-url", func(c *gin.Context) {
 		var req models.URLRequest
